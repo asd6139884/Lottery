@@ -9,8 +9,9 @@ namespace Lottery
 {
     public partial class Lottery : Form
     {
-        private string file = "Options.xlsx";
         private Random random; // 隨機數生成器
+        private System.Windows.Forms.Timer loadTimer;
+        private string file = "Options.xlsx";
         private DataTable dataTable; // 用於存放資料
 
         public Lottery()
@@ -21,6 +22,12 @@ namespace Lottery
             dataTable = new DataTable(); // 初始化 dataTable
 
             LoadExcelFile(file);
+            pictureBox3.Image = Image.FromFile(Path.Combine(Application.StartupPath, "icon", "Lottery2.png"));
+
+            // 初始化 Timer
+            loadTimer = new System.Windows.Forms.Timer();
+            loadTimer.Interval = 3000; // 設定 3 秒
+            loadTimer.Tick += LoadTimer_Tick; // 設定計時器事件
         }
 
         private void LoadExcelFile(string filePath)
@@ -74,37 +81,56 @@ namespace Lottery
 
         private void Start_Click(object sender, EventArgs e)
         {
-            string[] possibleExtensions = { ".jpg", ".png", ".bmp", ".gif", ".jpeg" };
-
             if (dataTable == null || dataTable.Rows.Count == 0)
             {
                 MessageBox.Show("資料已經用完或未載入！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Result.Text = string.Empty;
+                pictureBox1.Image = null; // 清空圖片
                 return;
             }
 
-            // 隨機挑選一行
+            pictureBox3.Visible = false; // 開頭圖片隱藏
+            pictureBox2.Visible = true; // gif顯示
+            pictureBox1.Visible = false; // 圖片隱藏
+            Result.Visible = false; // 文字隱藏
+            pictureBox2.Image = Image.FromFile(Path.Combine(Application.StartupPath, "icon", "loading.gif"));
+            pictureBox2.SizeMode = PictureBoxSizeMode.StretchImage; // 設定 GIF 顯示方式
+
+            // 隨機挑選，但先不顯示結果
             int randomIndex = random.Next(dataTable.Rows.Count);
             DataRow selectedRow = dataTable.Rows[randomIndex];
 
+            // 記錄選擇的結果和圖片檔案名稱
+            string selectedValue = selectedRow[0].ToString();
+            string filePath = GetImageFilePath(selectedValue);
 
+            // 開始計時器，等待 3 秒後顯示結果
+            loadTimer.Tag = new { RandomIndex = randomIndex, SelectedValue = selectedValue, FilePath = filePath }; // 保存相關資料
+            loadTimer.Start();
+        }
+
+        private void LoadTimer_Tick(object sender, EventArgs e)
+        {
+            // 停止計時器
+            loadTimer.Stop();
+
+            // 取得計時器中的資料
+            dynamic data = loadTimer.Tag;
+            int randomIndex = data.RandomIndex;
+            string selectedValue = data.SelectedValue;
+            string filePath = data.FilePath;
+
+            //pictureBox2.Image = null; // 隱藏動畫
+            pictureBox2.Visible = false; // 隱藏
+            pictureBox1.Visible = true; // 圖片顯示
+            Result.Visible = true; // 文字顯示
 
             // 顯示結果
-            Result.Text = selectedRow[0].ToString();
+            Result.Text = selectedValue;
 
-            // 讀取對應檔案名稱（圖片檔案）
-            string filePath = string.Empty;
-            foreach (string ext in possibleExtensions)
-            {
-                filePath = Path.Combine(Application.StartupPath, "icon", selectedRow[0].ToString() + ext);
-                if (File.Exists(filePath))
-                {
-                    break; // 找到檔案後退出循環
-                }
-            }
+            // 嘗試讀取並顯示圖片
             try
             {
-                // 讀取圖片檔案並顯示在 PictureBox 中
                 pictureBox1.Image = Image.FromFile(filePath);
                 pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage; // 調整顯示方式
             }
@@ -113,13 +139,33 @@ namespace Lottery
                 pictureBox1.Image = null; // 如果有錯誤，清除圖片
             }
 
-
             // 刪除該行
             dataTable.Rows.RemoveAt(randomIndex);
         }
+        private string GetImageFilePath(string baseFileName)
+        {
+            string[] possibleExtensions = { ".jpg", ".png", ".bmp", ".gif", ".jpeg" };
+            foreach (string ext in possibleExtensions)
+            {
+                string filePath = Path.Combine(Application.StartupPath, "icon", baseFileName + ext);
+                if (File.Exists(filePath))
+                {
+                    return filePath; // 找到檔案並返回路徑
+                }
+            }
+            return string.Empty; // 如果找不到圖片，返回空字串
+        }
+
+
+
         private void Reset_Click(object sender, EventArgs e)
         {
             LoadExcelFile(file);
+            pictureBox3.Visible = true; // 開頭圖片顯示
+            pictureBox2.Visible = false; // gif隱藏
+            pictureBox1.Visible = false; // 圖片隱藏
+            Result.Visible = false; // 文字隱藏
+            MessageBox.Show("名單已重制，重新抽獎！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         private void Result_TextChanged(object sender, EventArgs e)
         {

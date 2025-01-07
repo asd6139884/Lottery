@@ -32,7 +32,11 @@
             Start = new Button();
             Result = new TextBox();
             pictureBox1 = new PictureBox();
+            pictureBox2 = new PictureBox();
+            pictureBox3 = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             SuspendLayout();
             // 
             // Reset
@@ -49,7 +53,7 @@
             // Start
             // 
             Start.BackColor = Color.FromArgb(0, 192, 0);
-            Start.Location = new Point(112, 231);
+            Start.Location = new Point(112, 241);
             Start.Name = "Start";
             Start.Size = new Size(75, 32);
             Start.TabIndex = 1;
@@ -79,19 +83,40 @@
             pictureBox1.TabStop = false;
             pictureBox1.Click += pictureBox1_Click;
             // 
+            // pictureBox2
+            // 
+            pictureBox2.Location = new Point(63, 16);
+            pictureBox2.Name = "pictureBox2";
+            pictureBox2.Size = new Size(181, 209);
+            pictureBox2.TabIndex = 4;
+            pictureBox2.TabStop = false;
+            // 
+            // pictureBox3
+            // 
+            pictureBox3.Location = new Point(32, 16);
+            pictureBox3.Name = "pictureBox3";
+            pictureBox3.Size = new Size(241, 209);
+            pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox3.TabIndex = 5;
+            pictureBox3.TabStop = false;
+            // 
             // Lottery
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Silver;
             ClientSize = new Size(314, 321);
-            Controls.Add(pictureBox1);
+            Controls.Add(pictureBox3);
+            Controls.Add(pictureBox2);
             Controls.Add(Result);
+            Controls.Add(pictureBox1);
             Controls.Add(Start);
             Controls.Add(Reset);
             Name = "Lottery";
             Text = "Lottery";
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -102,5 +127,7 @@
         private Button Start;
         private TextBox Result;
         private PictureBox pictureBox1;
+        private PictureBox pictureBox2;
+        private PictureBox pictureBox3;
     }
 }
