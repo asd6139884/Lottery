@@ -68,7 +68,7 @@
             // ResultText
             // 
             ResultText.Anchor = AnchorStyles.None;
-            ResultText.BackColor = Color.Silver;
+            ResultText.BackColor = Color.Gold;
             ResultText.BorderStyle = BorderStyle.None;
             ResultText.Font = new Font("Microsoft JhengHei UI", 20F);
             ResultText.Location = new Point(60, 32);
@@ -77,7 +77,6 @@
             ResultText.Size = new Size(206, 34);
             ResultText.TabIndex = 2;
             ResultText.TextAlign = HorizontalAlignment.Center;
-            ResultText.TextChanged += Result_TextChanged;
             ResultText.Resize += Form1_Resize;
             // 
             // ResultImage
@@ -88,7 +87,6 @@
             ResultImage.Size = new Size(261, 199);
             ResultImage.TabIndex = 3;
             ResultImage.TabStop = false;
-            ResultImage.Click += pictureBox1_Click;
             ResultImage.Resize += Form1_Resize;
             // 
             // ExecuteImage
@@ -116,7 +114,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Color.Silver;
+            BackColor = Color.Gold;
             ClientSize = new Size(334, 361);
             Controls.Add(Reset);
             Controls.Add(Start);
@@ -125,7 +123,7 @@
             Controls.Add(ResultText);
             Controls.Add(ResultImage);
             Name = "Lottery";
-            Text = "Lottery";
+            Text = "抽獎啦~";
             ((System.ComponentModel.ISupportInitialize)ResultImage).EndInit();
             ((System.ComponentModel.ISupportInitialize)ExecuteImage).EndInit();
             ((System.ComponentModel.ISupportInitialize)StartImage).EndInit();

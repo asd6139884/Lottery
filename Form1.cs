@@ -126,6 +126,9 @@ namespace Lottery
                 return;
             }
 
+            Start.Enabled = false; // 禁用Start按鈕
+            Reset.Enabled = false; // 禁用Reset按鈕
+
             StartImage.Visible = false; // 開頭圖片隱藏
             ExecuteImage.Visible = true; // gif顯示
             ResultImage.Visible = false; // 圖片隱藏
@@ -138,45 +141,51 @@ namespace Lottery
             DataRow selectedRow = dataTable.Rows[randomIndex];
 
             // 記錄選擇的結果和圖片檔案名稱
-            string selectedValue = selectedRow[0].ToString();
+            string selectedValue = selectedRow[0]?.ToString() ?? string.Empty;
             string filePath = GetImageFilePath(selectedValue);
 
             // 開始計時器，等待 3 秒後顯示結果
             loadTimer.Tag = new { RandomIndex = randomIndex, SelectedValue = selectedValue, FilePath = filePath }; // 保存相關資料
             loadTimer.Start();
         }
-        private void LoadTimer_Tick(object sender, EventArgs e)
+        private void LoadTimer_Tick(object? sender, EventArgs e)
         {
             // 停止計時器
             loadTimer.Stop();
 
             // 取得計時器中的資料
-            dynamic data = loadTimer.Tag;
-            int randomIndex = data.RandomIndex;
-            string selectedValue = data.SelectedValue;
-            string filePath = data.FilePath;
-
-            //pictureBox2.Image = null; // 隱藏動畫
-            ExecuteImage.Visible = false; // 隱藏
-            ResultImage.Visible = true; // 圖片顯示
-            ResultText.Visible = true; // 文字顯示
-
-            // 顯示結果
-            ResultText.Text = selectedValue;
-
-            // 嘗試讀取並顯示圖片
-            try
+            if (loadTimer.Tag is not null)
             {
-                ResultImage.Image = Image.FromFile(filePath);
-                ResultImage.SizeMode = PictureBoxSizeMode.StretchImage; // 調整顯示方式
-            }
-            catch (Exception ex)
-            {
-                ResultImage.Image = null; // 如果有錯誤，清除圖片
-            }
+                dynamic data = loadTimer.Tag;
+                int randomIndex = data.RandomIndex;
+                string selectedValue = data.SelectedValue;
+                string filePath = data.FilePath;
 
-            // 刪除該行
-            dataTable.Rows.RemoveAt(randomIndex);
+                //pictureBox2.Image = null; // 隱藏動畫
+                ExecuteImage.Visible = false; // 隱藏
+                ResultImage.Visible = true; // 圖片顯示
+                ResultText.Visible = true; // 文字顯示
+
+                // 顯示結果
+                ResultText.Text = selectedValue;
+
+                // 嘗試讀取並顯示圖片
+                try
+                {
+                    ResultImage.Image = Image.FromFile(filePath);
+                    ResultImage.SizeMode = PictureBoxSizeMode.StretchImage; // 調整顯示方式
+                }
+                catch (Exception)
+                {
+                    ResultImage.Image = null; // 如果有錯誤，清除圖片
+                }
+
+                // 刪除該行
+                dataTable.Rows.RemoveAt(randomIndex);
+
+                Start.Enabled = true; // 啟用Start按鈕
+                Reset.Enabled = true; // 啟用Reset按鈕
+            }
         }
         private string GetImageFilePath(string baseFileName)
         {
@@ -191,9 +200,6 @@ namespace Lottery
             }
             return string.Empty; // 如果找不到圖片，返回空字串
         }
-
-
-
         private void Reset_Click(object sender, EventArgs e)
         {
             LoadExcelFile(file);
@@ -203,15 +209,7 @@ namespace Lottery
             ResultText.Visible = false; // 文字隱藏
             MessageBox.Show("名單已重制，重新抽獎！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
-        private void Result_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
-        private void Form1_Resize(object sender, EventArgs e)
+        private void Form1_Resize(object? sender, EventArgs e)
         {
             // 防止視窗在初始化時觸發不必要的調整
             if (this.WindowState == FormWindowState.Minimized)
@@ -301,11 +299,6 @@ namespace Lottery
             int newWidth = (int)(originalSize.Width * scaleRatio);
             int newHeight = (int)(originalSize.Height * scaleRatio);
             pictureBox.Size = new Size(newWidth, newHeight);
-
-            // 調整位置
-            //int x = (int)(originalLocation.X * scaleRatio);
-            //int y = (int)(originalLocation.Y * scaleRatio);
-            //pictureBox.Location = new Point(x, y);
 
             // 調整位置
             int x = (int)(this.ClientSize.Width * horizontalPosition - pictureBox.Width * 0.5);
