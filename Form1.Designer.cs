@@ -30,93 +30,105 @@
         {
             Reset = new Button();
             Start = new Button();
-            Result = new TextBox();
-            pictureBox1 = new PictureBox();
-            pictureBox2 = new PictureBox();
-            pictureBox3 = new PictureBox();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
+            ResultText = new TextBox();
+            ResultImage = new PictureBox();
+            ExecuteImage = new PictureBox();
+            StartImage = new PictureBox();
+            ((System.ComponentModel.ISupportInitialize)ResultImage).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)ExecuteImage).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)StartImage).BeginInit();
             SuspendLayout();
             // 
             // Reset
             // 
+            Reset.Anchor = AnchorStyles.None;
             Reset.BackColor = Color.FromArgb(255, 128, 128);
-            Reset.Location = new Point(225, 281);
+            Reset.Location = new Point(255, 324);
             Reset.Name = "Reset";
-            Reset.Size = new Size(75, 32);
+            Reset.Size = new Size(75, 30);
             Reset.TabIndex = 0;
             Reset.Text = "Reset";
             Reset.UseVisualStyleBackColor = false;
             Reset.Click += Reset_Click;
+            Reset.Resize += Form1_Resize;
             // 
             // Start
             // 
+            Start.Anchor = AnchorStyles.None;
             Start.BackColor = Color.FromArgb(0, 192, 0);
-            Start.Location = new Point(112, 241);
+            Start.Location = new Point(130, 301);
             Start.Name = "Start";
-            Start.Size = new Size(75, 32);
+            Start.Size = new Size(75, 30);
             Start.TabIndex = 1;
             Start.Text = "Start";
             Start.UseVisualStyleBackColor = false;
             Start.Click += Start_Click;
+            Start.Resize += Form1_Resize;
             // 
-            // Result
+            // ResultText
             // 
-            Result.BackColor = Color.Silver;
-            Result.BorderStyle = BorderStyle.None;
-            Result.Font = new Font("Microsoft JhengHei UI", 20F);
-            Result.Location = new Point(77, 38);
-            Result.Name = "Result";
-            Result.ReadOnly = true;
-            Result.Size = new Size(150, 34);
-            Result.TabIndex = 2;
-            Result.TextAlign = HorizontalAlignment.Center;
-            Result.TextChanged += Result_TextChanged;
+            ResultText.Anchor = AnchorStyles.None;
+            ResultText.BackColor = Color.Silver;
+            ResultText.BorderStyle = BorderStyle.None;
+            ResultText.Font = new Font("Microsoft JhengHei UI", 20F);
+            ResultText.Location = new Point(60, 32);
+            ResultText.Name = "ResultText";
+            ResultText.ReadOnly = true;
+            ResultText.Size = new Size(206, 34);
+            ResultText.TabIndex = 2;
+            ResultText.TextAlign = HorizontalAlignment.Center;
+            ResultText.TextChanged += Result_TextChanged;
+            ResultText.Resize += Form1_Resize;
             // 
-            // pictureBox1
+            // ResultImage
             // 
-            pictureBox1.Location = new Point(77, 87);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(150, 129);
-            pictureBox1.TabIndex = 3;
-            pictureBox1.TabStop = false;
-            pictureBox1.Click += pictureBox1_Click;
+            ResultImage.Anchor = AnchorStyles.None;
+            ResultImage.Location = new Point(36, 82);
+            ResultImage.Name = "ResultImage";
+            ResultImage.Size = new Size(261, 199);
+            ResultImage.TabIndex = 3;
+            ResultImage.TabStop = false;
+            ResultImage.Click += pictureBox1_Click;
+            ResultImage.Resize += Form1_Resize;
             // 
-            // pictureBox2
+            // ExecuteImage
             // 
-            pictureBox2.Location = new Point(63, 16);
-            pictureBox2.Name = "pictureBox2";
-            pictureBox2.Size = new Size(181, 209);
-            pictureBox2.TabIndex = 4;
-            pictureBox2.TabStop = false;
+            ExecuteImage.Anchor = AnchorStyles.None;
+            ExecuteImage.Location = new Point(49, 32);
+            ExecuteImage.Name = "ExecuteImage";
+            ExecuteImage.Size = new Size(236, 249);
+            ExecuteImage.TabIndex = 4;
+            ExecuteImage.TabStop = false;
+            ExecuteImage.Resize += Form1_Resize;
             // 
-            // pictureBox3
+            // StartImage
             // 
-            pictureBox3.Location = new Point(32, 16);
-            pictureBox3.Name = "pictureBox3";
-            pictureBox3.Size = new Size(241, 209);
-            pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBox3.TabIndex = 5;
-            pictureBox3.TabStop = false;
+            StartImage.Anchor = AnchorStyles.None;
+            StartImage.Location = new Point(36, 32);
+            StartImage.Name = "StartImage";
+            StartImage.Size = new Size(261, 249);
+            StartImage.SizeMode = PictureBoxSizeMode.Zoom;
+            StartImage.TabIndex = 5;
+            StartImage.TabStop = false;
+            StartImage.Resize += Form1_Resize;
             // 
             // Lottery
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Silver;
-            ClientSize = new Size(314, 321);
-            Controls.Add(pictureBox3);
-            Controls.Add(pictureBox2);
-            Controls.Add(Result);
-            Controls.Add(pictureBox1);
-            Controls.Add(Start);
+            ClientSize = new Size(334, 361);
             Controls.Add(Reset);
+            Controls.Add(Start);
+            Controls.Add(StartImage);
+            Controls.Add(ExecuteImage);
+            Controls.Add(ResultText);
+            Controls.Add(ResultImage);
             Name = "Lottery";
             Text = "Lottery";
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
+            ((System.ComponentModel.ISupportInitialize)ResultImage).EndInit();
+            ((System.ComponentModel.ISupportInitialize)ExecuteImage).EndInit();
+            ((System.ComponentModel.ISupportInitialize)StartImage).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -125,9 +137,9 @@
 
         private Button Reset;
         private Button Start;
-        private TextBox Result;
-        private PictureBox pictureBox1;
-        private PictureBox pictureBox2;
-        private PictureBox pictureBox3;
+        private TextBox ResultText;
+        private PictureBox ResultImage;
+        private PictureBox ExecuteImage;
+        private PictureBox StartImage;
     }
 }
