@@ -213,105 +213,120 @@ namespace Lottery
         }
         private void Form1_Resize(object sender, EventArgs e)
         {
-            //計算新的高度以維持比例
-            Size currentSize = this.Size;
+            // 防止視窗在初始化時觸發不必要的調整
+            if (this.WindowState == FormWindowState.Minimized)
+                return;
 
-            int newHeight = (int)(currentSize.Width / aspectRatio);
-            int newWidth = (int)(currentSize.Height * aspectRatio);
+            // 獲取當前尺寸
+            int currentWidth = this.Width;
+            int currentHeight = this.Height;
 
-            // 設置新的大小
-            Console.WriteLine("-------------------------");
-            Console.WriteLine($"視窗Size : {currentSize.Width}x{currentSize.Height}");
-            Console.WriteLine($"前一Size : {previousSize.Width}x{previousSize.Height}");
+            // 計算新的尺寸
+            int newWidth = currentWidth;
+            int newHeight = currentHeight;
 
-            if (currentSize.Width > previousSize.Width || currentSize.Height > previousSize.Height)
+            // 檢查是寬度還是高度改變較大
+            float widthChange = Math.Abs(currentWidth - previousSize.Width);
+            float heightChange = Math.Abs(currentHeight - previousSize.Height);
+
+            // 根據變化較大的維度來調整另一個維度
+            if (widthChange > heightChange)
             {
-                // 使用者在放大
-                Console.WriteLine("使用者在放大");
-                newWidth = Math.Max(currentSize.Width, newWidth);
-                newHeight = Math.Max(currentSize.Height, newHeight);
-            }
-            else if (currentSize.Width < previousSize.Width || currentSize.Height < previousSize.Height)
-            {
-                // 使用者在縮小
-                Console.WriteLine("使用者在縮小");
-                newWidth = Math.Min(currentSize.Width, newWidth);
-                newHeight = Math.Min(currentSize.Height, newHeight);
+                // 寬度變化更大，據此調整高度
+                newHeight = (int)(currentWidth / aspectRatio);
             }
             else
             {
-                Console.WriteLine("Else");
-                return;
+                // 高度變化更大，據此調整寬度
+                newWidth = (int)(currentHeight * aspectRatio);
             }
 
-            Console.WriteLine($"視窗儲存Size : {newWidth}x{newHeight}");
-            this.Size = new Size(newWidth, newHeight); // 設置新的大小
-            //previousSize = new Size(newWidth, newHeight);
+            // 設置新的大小
+            if (newWidth != currentWidth || newHeight != currentHeight)
+            {
+                this.Size = new Size(newWidth, newHeight);
+            }
 
-            // 比例
+            // 計算縮放比例
             float widthRatio = (float)this.ClientSize.Width / LotteryOriginSize.Width;
             float heightRatio = (float)this.ClientSize.Height / LotteryOriginSize.Height;
-
-            // 取寬高的平均比例（平衡縮放效果）
             float scaleRatio = Math.Min(widthRatio, heightRatio);
 
-            // Start按鈕
-            Start.Width = (int)(StartButtonOriginSize.Width * widthRatio);
-            Start.Height = (int)(StartButtonOriginSize.Height * heightRatio);
-            Start.Location = new Point(
-                (int)(this.ClientSize.Width * 0.5 - Start.Width * 0.5), // 水平位置
-                (int)(this.ClientSize.Height * 0.9 - Start.Height * 0.5) // 垂直位置
-            );
-            float StartFontSize = Math.Max(1, StartButtonOriginFontSize * scaleRatio); // 設置最小字體大小為 1
-            Start.Font = new Font(Start.Font.FontFamily, StartFontSize); // 更新按鈕字體大小
+            // 更新控制項大小和位置
+            UpdateAllControls(scaleRatio);
 
-            //Console.WriteLine($"Start按鈕大小: {Start.Size}, 位置: {Start.Location}, 字體大小: {Start.Font.Size}");
+            // 儲存當前大小供下次比較
+            previousSize = this.Size;
+        }
+        private void UpdateAllControls(float scaleRatio)
+        {
+            // 更新按鈕
+            UpdateButton(Start, StartButtonOriginSize, StartButtonOriginFontSize, scaleRatio, 0.5f, 0.9f);
+            UpdateButton(Reset, ResetButtonOriginSize, ResetButtonOriginFontSize, scaleRatio, 0.85f, 0.95f);
 
-            // Reset按鈕
-            Reset.Width = (int)(ResetButtonOriginSize.Width * widthRatio);
-            Reset.Height = (int)(ResetButtonOriginSize.Height * heightRatio);
-            Reset.Location = new Point(
-                (int)(this.ClientSize.Width * 0.85 - Reset.Width * 0.5),
-                (int)(this.ClientSize.Height * 0.95 - Reset.Height * 0.5)
-            );
-            float ResetFontSize = Math.Max(1, ResetButtonOriginFontSize * scaleRatio); // 設置最小字體大小為 1
-            Reset.Font = new Font(Reset.Font.FontFamily, ResetFontSize); // 更新按鈕字體大小
+            // 更新圖片
+            UpdatePictureBox(StartImage, StartImageOriginSize, StartImageOriginLocation, scaleRatio, 0.5f, 0.5f);
+            UpdatePictureBox(ExecuteImage, ExecuteImageOriginSize, ExecuteImageOriginLocation, scaleRatio, 0.5f, 0.5f);
+            UpdatePictureBox(ResultImage, ResultImageOriginSize, ResultImageOriginLocation, scaleRatio, 0.5f, 0.5f);
 
-            //StartImage
-            StartImage.Size = new Size(
-                (int)(StartImageOriginSize.Width * widthRatio), 
-                (int)(StartImageOriginSize.Height * heightRatio)
-            );
-            StartImage.Location = new Point(
-                (int)(StartImageOriginLocation.X * widthRatio),
-                (int)(StartImageOriginLocation.Y * heightRatio)
-            );
-            //ExecuteImage
-            ExecuteImage.Size = new Size(
-                (int)(ExecuteImageOriginSize.Width * widthRatio),
-                (int)(ExecuteImageOriginSize.Height * heightRatio)
-            );
-            ExecuteImage.Location = new Point(
-                (int)(ExecuteImageOriginLocation.X * widthRatio),
-                (int)(ExecuteImageOriginLocation.Y * heightRatio)
-            );
-            //ResultImage
-            ResultImage.Size = new Size(
-                (int)(ResultImageOriginSize.Width * widthRatio),
-                (int)(ResultImageOriginSize.Height * heightRatio)
-            );
-            ResultImage.Location = new Point(
-                (int)(ResultImageOriginLocation.X * widthRatio),
-                (int)(ResultImageOriginLocation.Y * heightRatio)
-            );
+            // 更新文字框
+            UpdateTextBox(ResultText, ResultTextOriginFontSize, scaleRatio, 0.5f, 0.15f);
+        }
 
-            //ResultText
-            ResultText.Location = new Point(
-                (int)(this.ClientSize.Width * 0.5 - ResultText.Width * 0.5),
-                (int)(this.ClientSize.Height * 0.1 - ResultText.Height * 0.5)
-            );
-            float ResultTextFontSize = Math.Max(1, ResultTextOriginFontSize * scaleRatio); // 設置最小字體大小為 1
-            ResultText.Font = new Font(ResultText.Font.FontFamily, ResultTextFontSize); // 更新按鈕字體大小
+        private void UpdateButton(Button button, Size originalSize, float originalFontSize,
+    float scaleRatio, float horizontalPosition, float verticalPosition)
+        {
+            // 按照比例調整大小
+            int newWidth = (int)(originalSize.Width * scaleRatio);
+            int newHeight = (int)(originalSize.Height * scaleRatio);
+            button.Size = new Size(newWidth, newHeight);
+
+            // 調整位置
+            int x = (int)(this.ClientSize.Width * horizontalPosition - button.Width * 0.5);
+            int y = (int)(this.ClientSize.Height * verticalPosition - button.Height * 0.5);
+            button.Location = new Point(x, y);
+
+            // 調整字體大小
+            float newFontSize = originalFontSize * scaleRatio;
+            if (Math.Abs(button.Font.Size - newFontSize) > 0.1f)
+            {
+                button.Font = new Font(button.Font.FontFamily, newFontSize);
+            }
+        }
+
+        private void UpdatePictureBox(PictureBox pictureBox, Size originalSize, Point originalLocation, float scaleRatio,
+            float horizontalPosition, float verticalPosition)
+        {
+            // 按照比例調整大小
+            int newWidth = (int)(originalSize.Width * scaleRatio);
+            int newHeight = (int)(originalSize.Height * scaleRatio);
+            pictureBox.Size = new Size(newWidth, newHeight);
+
+            // 調整位置
+            //int x = (int)(originalLocation.X * scaleRatio);
+            //int y = (int)(originalLocation.Y * scaleRatio);
+            //pictureBox.Location = new Point(x, y);
+
+            // 調整位置
+            int x = (int)(this.ClientSize.Width * horizontalPosition - pictureBox.Width * 0.5);
+            int y = (int)(this.ClientSize.Height * verticalPosition - pictureBox.Height * 0.5);
+            pictureBox.Location = new Point(x, y);
+        }
+
+        private void UpdateTextBox(TextBox textBox, float originalFontSize, float scaleRatio,
+            float horizontalPosition, float verticalPosition)
+        {
+            // 調整字體大小
+            float newFontSize = originalFontSize * scaleRatio;
+            if (Math.Abs(textBox.Font.Size - newFontSize) > 0.1f)
+            {
+                textBox.Font = new Font(textBox.Font.FontFamily, newFontSize);
+            }
+
+            // 調整位置
+            int x = (int)(this.ClientSize.Width * horizontalPosition - textBox.Width * 0.5);
+            int y = (int)(this.ClientSize.Height * verticalPosition - textBox.Height * 0.5);
+            textBox.Location = new Point(x, y);
         }
     }
 }
