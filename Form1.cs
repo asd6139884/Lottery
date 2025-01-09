@@ -20,53 +20,88 @@ namespace Lottery
         private Size LotteryOriginSize; // 視窗初始大小
         private Size previousSize; // 視窗大小
         private float aspectRatio; // 寬高比
-
-        private Size StartButtonOriginSize; // Start按鈕初始大小
-        private float StartButtonOriginFontSize; // Start按鈕初始字體大小
-
-        private Size ResetButtonOriginSize; //  Reset按鈕初始大小
-        private float ResetButtonOriginFontSize; // Reset按鈕初始字體大小
-
-        private Size StartImageOriginSize;  // StartImage初始大小
-        private Point StartImageOriginLocation; // StartImage初始位置
-
-        private Size ExecuteImageOriginSize;  // ExecuteImage初始大小
-        private Point ExecuteImageOriginLocation; // ExecuteImage初始位置
-
-        private Size ResultImageOriginSize;  // ResultImage初始大小
-        private Point ResultImageOriginLocation; // ResultImage初始位置
-
-        private Point ResultTextOriginLocation; // ResultText初始位置
-        private float ResultTextOriginFontSize; // ResultText初始字體大小
-
-        private Point listBox1OriginLocation; // listBox1初始位置
-        private Size listBox1OriginSize; // listBox1初始大小
-        private float listBox1OriginFontSize; // listBox1初始字體大小
+        // Start按鈕
+        private Size StartButtonOriginSize; // 初始大小
+        private float StartButtonOriginFontSize; // 初始字體大小
+        private readonly PointF StartButtonPositionRatio; // 位置比例
+        //  Reset按鈕
+        private Size ResetButtonOriginSize; //  初始大小
+        private float ResetButtonOriginFontSize; // 初始字體大小
+        private readonly PointF ResetButtonPositionRatio; // 位置比例
+        // StartImage
+        private Size StartImageOriginSize;  // 初始大小
+        private readonly PointF StartImagePositionRatio; // 位置比例
+        // ExecuteImage
+        private Size ExecuteImageOriginSize;  // 初始大小
+        private readonly PointF ExecuteImagePositionRatio; // 位置比例
+        // ResultImage
+        private Size ResultImageOriginSize;  // 初始大小
+        private readonly PointF ResultImagePositionRatio; // 位置比例
+        // ResultText
+        private Size ResultTextOriginSize; //初始大小
+        private float ResultTextOriginFontSize; // 初始字體大小
+        private readonly PointF ResultTextPositionRatio; // 位置比例
+        // listBox1
+        private Size listBox1OriginSize; // 初始大小
+        private float listBox1OriginFontSize; // 初始字體大小
+        private readonly PointF listBox1PositionRatio; // 位置比例
 
         public Lottery()
         {
             InitializeComponent();
 
             // 取得物件資訊
-            LotteryOriginSize = this.Size;
+            LotteryOriginSize = this.ClientSize;
             previousSize = this.Size;
             aspectRatio = (float)LotteryOriginSize.Width / LotteryOriginSize.Height;
-            StartButtonOriginSize = Start.Size;
-            StartButtonOriginFontSize = Start.Font.Size;
-            ResetButtonOriginSize = Reset.Size;
-            ResetButtonOriginFontSize = Reset.Font.Size;
+
+            StartButtonOriginSize = StartButton.Size;
+            StartButtonOriginFontSize = StartButton.Font.Size;
+
+            ResetButtonOriginSize = ResetButton.Size;
+            ResetButtonOriginFontSize = ResetButton.Font.Size;
+
             StartImageOriginSize = StartImage.Size;
-            StartImageOriginLocation = StartImage.Location;
             ExecuteImageOriginSize = ExecuteImage.Size;
-            ExecuteImageOriginLocation = ExecuteImage.Location;
             ResultImageOriginSize = ResultImage.Size;
-            ResultImageOriginLocation = ResultImage.Location;
-            ResultTextOriginLocation = ResultText.Location;
+
+            ResultTextOriginSize = ResultText.Size;
             ResultTextOriginFontSize = ResultText.Font.Size;
-            listBox1OriginLocation = listBox1.Location;
+
             listBox1OriginSize = listBox1.Size;
             listBox1OriginFontSize = listBox1.Font.Size;
 
+            // 計算水平與垂直比例
+            StartButtonPositionRatio = new PointF(
+                (float)(StartButton.Location.X + StartButtonOriginSize.Width * 0.5) / LotteryOriginSize.Width,
+                (float)(StartButton.Location.Y + StartButtonOriginSize.Height * 0.5) / LotteryOriginSize.Height
+            );
+            ResetButtonPositionRatio = new PointF(
+                (float)(ResetButton.Location.X + ResetButtonOriginSize.Width * 0.5) / LotteryOriginSize.Width,
+                (float)(ResetButton.Location.Y + ResetButtonOriginSize.Height * 0.5) / LotteryOriginSize.Height
+            );
+            StartImagePositionRatio = new PointF(
+                (float)(StartImage.Location.X + StartImageOriginSize.Width * 0.5) / LotteryOriginSize.Width,
+                (float)(StartImage.Location.Y + StartImageOriginSize.Height * 0.5) / LotteryOriginSize.Height
+            );
+            ExecuteImagePositionRatio = new PointF(
+                (float)(ExecuteImage.Location.X + ExecuteImageOriginSize.Width * 0.5) / LotteryOriginSize.Width,
+                (float)(ExecuteImage.Location.Y + ExecuteImageOriginSize.Height * 0.5) / LotteryOriginSize.Height
+            );
+            ResultImagePositionRatio = new PointF(
+                (float)(ResultImage.Location.X + ResultImageOriginSize.Width * 0.5) / LotteryOriginSize.Width,
+                (float)(ResultImage.Location.Y + ResultImageOriginSize.Height * 0.5) / LotteryOriginSize.Height
+            );
+            ResultTextPositionRatio = new PointF(
+                (float)(ResultText.Location.X + ResultTextOriginSize.Width * 0.5) / LotteryOriginSize.Width,
+                (float)(ResultText.Location.Y + ResultTextOriginSize.Height * 0.5) / LotteryOriginSize.Height
+            );
+            listBox1PositionRatio = new PointF(
+                (float)(listBox1.Location.X + listBox1OriginSize.Width * 0.5) / LotteryOriginSize.Width,
+                (float)(listBox1.Location.Y + listBox1OriginSize.Height * 0.5) / LotteryOriginSize.Height
+            );
+
+            // 設定視窗圖示
             this.Icon = Icon.FromHandle(new Bitmap("./icon/Lottery.png").GetHicon()); // 將 JPG 轉換為 Bitmap 並設置為圖示
             this.Resize += Form1_Resize;
 
@@ -81,9 +116,7 @@ namespace Lottery
             loadTimer = new System.Windows.Forms.Timer();
             loadTimer.Interval = 3000; // 設定 3 秒
             loadTimer.Tick += LoadTimer_Tick; // 設定計時器事件
-
         }
-
         private void LoadExcelFile(string filePath)
         {
             if (!File.Exists(filePath))
@@ -157,8 +190,8 @@ namespace Lottery
                 return;
             }
 
-            Start.Enabled = false; // 禁用Start按鈕
-            Reset.Enabled = false; // 禁用Reset按鈕
+            StartButton.Enabled = false; // 禁用Start按鈕
+            ResetButton.Enabled = false; // 禁用Reset按鈕
 
             StartImage.Visible = false; // 開頭圖片隱藏
             ExecuteImage.Visible = true; // gif顯示
@@ -249,8 +282,8 @@ namespace Lottery
                 // 重新顯示資料
                 DisplayDataInListBox(dataTable);
 
-                Start.Enabled = true; // 啟用Start按鈕
-                Reset.Enabled = true; // 啟用Reset按鈕
+                StartButton.Enabled = true; // 啟用Start按鈕
+                ResetButton.Enabled = true; // 啟用Reset按鈕
             }
         }
         private string GetImageFilePath(string baseFileName)
@@ -340,44 +373,39 @@ namespace Lottery
         private void UpdateAllControls(float scaleRatio)
         {
             // 更新按鈕
-            UpdateButton(Start, StartButtonOriginSize, StartButtonOriginFontSize, scaleRatio, 0.4f, 0.85f);
-            UpdateButton(Reset, ResetButtonOriginSize, ResetButtonOriginFontSize, scaleRatio, 0.9f, 0.95f);
+            UpdateButton(StartButton, StartButtonPositionRatio, StartButtonOriginSize, StartButtonOriginFontSize, scaleRatio);
+            UpdateButton(ResetButton, ResetButtonPositionRatio, ResetButtonOriginSize, ResetButtonOriginFontSize, scaleRatio);
 
             // 更新圖片
-            UpdatePictureBox(StartImage, StartImageOriginSize, StartImageOriginLocation, scaleRatio, 0.4f, 0.45f);
-            UpdatePictureBox(ExecuteImage, ExecuteImageOriginSize, ExecuteImageOriginLocation, scaleRatio, 0.4f, 0.45f);
-            UpdatePictureBox(ResultImage, ResultImageOriginSize, ResultImageOriginLocation, scaleRatio, 0.4f, 0.45f);
+            UpdatePictureBox(StartImage, StartImagePositionRatio, StartImageOriginSize, scaleRatio);
+            UpdatePictureBox(ExecuteImage, ExecuteImagePositionRatio, ExecuteImageOriginSize, scaleRatio);
+            UpdatePictureBox(ResultImage, ResultImagePositionRatio, ResultImageOriginSize, scaleRatio);
 
             // 更新文字框
-            UpdateTextBox(ResultText, ResultTextOriginFontSize, scaleRatio, 0.4f, 0.1f);
+            UpdateTextBox(ResultText, ResultTextPositionRatio, ResultTextOriginSize, ResultTextOriginFontSize, scaleRatio);
 
             // 更新列表框
-            UpdateListBox(listBox1, listBox1OriginLocation, listBox1OriginSize, listBox1OriginFontSize, scaleRatio, 0.85f, 0.4f);
+            UpdateListBox(listBox1, listBox1PositionRatio, listBox1OriginSize, listBox1OriginFontSize, scaleRatio);
         }
-
-        private void UpdateButton(Button button, Size originalSize, float originalFontSize,
-            float scaleRatio, float horizontalPosition, float verticalPosition)
-        {
-            // 按照比例調整大小
-            int newWidth = (int)(originalSize.Width * scaleRatio);
-            int newHeight = (int)(originalSize.Height * scaleRatio);
-            button.Size = new Size(newWidth, newHeight);
-
-            // 調整位置
-            int x = (int)(this.ClientSize.Width * horizontalPosition - button.Width * 0.5);
-            int y = (int)(this.ClientSize.Height * verticalPosition - button.Height * 0.5);
-            button.Location = new Point(x, y);
-
-            // 調整字體大小
-            float newFontSize = originalFontSize * scaleRatio;
-            if (Math.Abs(button.Font.Size - newFontSize) > 0.1f)
+        private void UpdateButton(Button button, PointF PositionRatio, Size originalSize, float originalFontSize, float scaleRatio)
             {
-                button.Font = new Font(button.Font.FontFamily, newFontSize);
-            }
-        }
+                // 調整字體大小
+                float newFontSize = originalFontSize * scaleRatio;
+                if (Math.Abs(button.Font.Size - newFontSize) > 0.1f)
+                {
+                    button.Font = new Font(button.Font.FontFamily, newFontSize);
+                }
+                // 按照比例調整大小
+                int newWidth = (int)(originalSize.Width * scaleRatio);
+                int newHeight = (int)(originalSize.Height * scaleRatio);
+                button.Size = new Size(newWidth, newHeight);
 
-        private void UpdatePictureBox(PictureBox pictureBox, Size originalSize, Point originalLocation, float scaleRatio,
-            float horizontalPosition, float verticalPosition)
+                // 調整位置
+                int x = (int)(this.ClientSize.Width * PositionRatio.X - button.Width * 0.5);
+                int y = (int)(this.ClientSize.Height * PositionRatio.Y - button.Height * 0.5);
+                button.Location = new Point(x, y);
+            }
+        private void UpdatePictureBox(PictureBox pictureBox, PointF PositionRatio, Size originalSize, float scaleRatio)
         {
             // 按照比例調整大小
             int newWidth = (int)(originalSize.Width * scaleRatio);
@@ -385,13 +413,11 @@ namespace Lottery
             pictureBox.Size = new Size(newWidth, newHeight);
 
             // 調整位置
-            int x = (int)(this.ClientSize.Width * horizontalPosition - pictureBox.Width * 0.5);
-            int y = (int)(this.ClientSize.Height * verticalPosition - pictureBox.Height * 0.5);
+            int x = (int)(this.ClientSize.Width * PositionRatio.X - pictureBox.Width * 0.5);
+            int y = (int)(this.ClientSize.Height * PositionRatio.Y - pictureBox.Height * 0.5);
             pictureBox.Location = new Point(x, y);
         }
-
-        private void UpdateTextBox(TextBox textBox, float originalFontSize, float scaleRatio,
-            float horizontalPosition, float verticalPosition)
+        private void UpdateTextBox(TextBox textBox, PointF PositionRatio, Size originalSize, float originalFontSize, float scaleRatio)
         {
             // 調整字體大小
             float newFontSize = originalFontSize * scaleRatio;
@@ -399,15 +425,17 @@ namespace Lottery
             {
                 textBox.Font = new Font(textBox.Font.FontFamily, newFontSize);
             }
+            // 按照比例調整大小
+            int newWidth = (int)(originalSize.Width * scaleRatio);
+            int newHeight = (int)(originalSize.Height * scaleRatio);
+            textBox.Size = new Size(newWidth, newHeight);
 
             // 調整位置
-            int x = (int)(this.ClientSize.Width * horizontalPosition - textBox.Width * 0.5);
-            int y = (int)(this.ClientSize.Height * verticalPosition - textBox.Height * 0.5);
+            int x = (int)(this.ClientSize.Width * PositionRatio.X - textBox.Width * 0.5);
+            int y = (int)(this.ClientSize.Height * PositionRatio.Y - textBox.Height * 0.5);
             textBox.Location = new Point(x, y);
         }
-
-        private void UpdateListBox(ListBox listBox, Point originalLocation, Size originalSize, float originalFontSize,
-            float scaleRatio, float horizontalPosition, float verticalPosition)
+        private void UpdateListBox(ListBox listBox, PointF PositionRatio, Size originalSize, float originalFontSize, float scaleRatio)
         {
             // 調整字體大小
             float newFontSize = originalFontSize * scaleRatio;
@@ -420,8 +448,8 @@ namespace Lottery
             int newHeight = (int)(originalSize.Height * scaleRatio);
             listBox.Size = new Size(newWidth, newHeight);
             // 調整位置
-            int x = (int)(this.ClientSize.Width * horizontalPosition - listBox.Width * 0.5);
-            int y = (int)(this.ClientSize.Height * verticalPosition - listBox.Height * 0.5);
+            int x = (int)(this.ClientSize.Width * PositionRatio.X - listBox.Width * 0.5);
+            int y = (int)(this.ClientSize.Height * PositionRatio.Y - listBox.Height * 0.5);
             listBox.Location = new Point(x, y);
         }
     }
