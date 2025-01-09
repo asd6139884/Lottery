@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Windows.Forms;
@@ -18,18 +20,28 @@ namespace Lottery
         private Size LotteryOriginSize; // 視窗初始大小
         private Size previousSize; // 視窗大小
         private float aspectRatio; // 寬高比
+
         private Size StartButtonOriginSize; // Start按鈕初始大小
         private float StartButtonOriginFontSize; // Start按鈕初始字體大小
+
         private Size ResetButtonOriginSize; //  Reset按鈕初始大小
         private float ResetButtonOriginFontSize; // Reset按鈕初始字體大小
+
         private Size StartImageOriginSize;  // StartImage初始大小
         private Point StartImageOriginLocation; // StartImage初始位置
+
         private Size ExecuteImageOriginSize;  // ExecuteImage初始大小
         private Point ExecuteImageOriginLocation; // ExecuteImage初始位置
+
         private Size ResultImageOriginSize;  // ResultImage初始大小
         private Point ResultImageOriginLocation; // ResultImage初始位置
+
         private Point ResultTextOriginLocation; // ResultText初始位置
         private float ResultTextOriginFontSize; // ResultText初始字體大小
+
+        private Point listBox1OriginLocation; // listBox1初始位置
+        private Size listBox1OriginSize; // listBox1初始大小
+        private float listBox1OriginFontSize; // listBox1初始字體大小
 
         public Lottery()
         {
@@ -51,6 +63,9 @@ namespace Lottery
             ResultImageOriginLocation = ResultImage.Location;
             ResultTextOriginLocation = ResultText.Location;
             ResultTextOriginFontSize = ResultText.Font.Size;
+            listBox1OriginLocation = listBox1.Location;
+            listBox1OriginSize = listBox1.Size;
+            listBox1OriginFontSize = listBox1.Font.Size;
 
             this.Icon = Icon.FromHandle(new Bitmap("./icon/Lottery.png").GetHicon()); // 將 JPG 轉換為 Bitmap 並設置為圖示
             this.Resize += Form1_Resize;
@@ -59,6 +74,7 @@ namespace Lottery
             dataTable = new DataTable(); // 初始化 dataTable
 
             LoadExcelFile(file);
+            DisplayDataInListBox(dataTable);
             StartImage.Image = Image.FromFile(Path.Combine(Application.StartupPath, "icon", "Lottery2.png"));
 
             // 初始化 Timer
@@ -70,16 +86,16 @@ namespace Lottery
 
         private void LoadExcelFile(string filePath)
         {
-            if (!File.Exists(file))
+            if (!File.Exists(filePath))
             {
-                MessageBox.Show($"檔案 {file} 不存在！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"檔案 {filePath} 不存在！", "錯誤", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             try
             {
                 ExcelPackage.LicenseContext = LicenseContext.NonCommercial; // 設置 LicenseContext 為非商業用途
-                using (var package = new ExcelPackage(new FileInfo(file)))
+                using (var package = new ExcelPackage(new FileInfo(filePath)))
                 {
                     var worksheet = package.Workbook.Worksheets[0]; // 讀取第一個工作表
 
@@ -109,6 +125,21 @@ namespace Lottery
                     {
                         MessageBox.Show("資料為空，請檢查 Excel 檔案內容。", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
+
+                    // Console顯示資料
+                    foreach (DataColumn column in dataTable.Columns)
+                    {
+                        Console.Write($"{column.ColumnName}\t");
+                    }
+                    Console.WriteLine();
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        foreach (var item in row.ItemArray)
+                        {
+                            Console.Write($"{item}\t");
+                        }
+                        Console.WriteLine();
+                    }
                 }
             }
             catch (Exception ex)
@@ -136,16 +167,50 @@ namespace Lottery
             ExecuteImage.Image = Image.FromFile(Path.Combine(Application.StartupPath, "icon", "loading.gif"));
             ExecuteImage.SizeMode = PictureBoxSizeMode.StretchImage; // 設定 GIF 顯示方式
 
-            // 隨機挑選，但先不顯示結果
-            int randomIndex = random.Next(dataTable.Rows.Count);
-            DataRow selectedRow = dataTable.Rows[randomIndex];
+            // 計算加權機率分布
+            Console.WriteLine("---------");
+            List<double> cumulativeWeights = new List<double>();
+            double totalWeight = 0;
+            foreach (DataRow row in dataTable.Rows)
+            {
+                double weight = 1; // 預設權重為 1
+                if (row["權重"] != DBNull.Value && double.TryParse(row["權重"].ToString(), out double probabilityAdjustment)) // 檢查是否有權重
+                {
+                    if (probabilityAdjustment < 1) // 權重小於 1 時，設定為 1
+                    {
+                        weight = 1;
+                    }
+                    else
+                    {
+                        weight = probabilityAdjustment;
+                    }
+                }
+                totalWeight += weight;
+                cumulativeWeights.Add(totalWeight); // 累計權重
+                Console.WriteLine($"Weight: {weight}, TotalWeight: {totalWeight}");
+            }
+            Console.WriteLine("---------");
+
+            // 隨機選擇
+            double randomValue = random.NextDouble() * totalWeight;
+            Console.WriteLine($"RandomValue: {randomValue}");
+            int selectedIndex = 0;
+            for (int i = 0; i < cumulativeWeights.Count; i++)
+            {
+                if (randomValue < cumulativeWeights[i])
+                {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+            DataRow selectedRow = dataTable.Rows[selectedIndex];
 
             // 記錄選擇的結果和圖片檔案名稱
             string selectedValue = selectedRow[0]?.ToString() ?? string.Empty;
             string filePath = GetImageFilePath(selectedValue);
 
             // 開始計時器，等待 3 秒後顯示結果
-            loadTimer.Tag = new { RandomIndex = randomIndex, SelectedValue = selectedValue, FilePath = filePath }; // 保存相關資料
+            loadTimer.Tag = new { RandomIndex = selectedIndex, SelectedValue = selectedValue, FilePath = filePath }; // 保存相關資料
             loadTimer.Start();
         }
         private void LoadTimer_Tick(object? sender, EventArgs e)
@@ -161,7 +226,6 @@ namespace Lottery
                 string selectedValue = data.SelectedValue;
                 string filePath = data.FilePath;
 
-                //pictureBox2.Image = null; // 隱藏動畫
                 ExecuteImage.Visible = false; // 隱藏
                 ResultImage.Visible = true; // 圖片顯示
                 ResultText.Visible = true; // 文字顯示
@@ -182,6 +246,8 @@ namespace Lottery
 
                 // 刪除該行
                 dataTable.Rows.RemoveAt(randomIndex);
+                // 重新顯示資料
+                DisplayDataInListBox(dataTable);
 
                 Start.Enabled = true; // 啟用Start按鈕
                 Reset.Enabled = true; // 啟用Reset按鈕
@@ -203,12 +269,27 @@ namespace Lottery
         private void Reset_Click(object sender, EventArgs e)
         {
             LoadExcelFile(file);
+            DisplayDataInListBox(dataTable);
             StartImage.Visible = true; // 開頭圖片顯示
             ExecuteImage.Visible = false; // gif隱藏
             ResultImage.Visible = false; // 圖片隱藏
             ResultText.Visible = false; // 文字隱藏
-            MessageBox.Show("名單已重制，重新抽獎！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("名單已重置，重新抽獎！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        private void DisplayDataInListBox(DataTable table)
+        {
+            // 清空 ListBox 的現有內容
+            listBox1.Items.Clear();
+
+            // 將資料載入到 ListBox
+            foreach (DataRow row in table.Rows)
+            {
+                listBox1.Items.Add(row["名稱"]); // 這裡以 "Name" 欄位顯示為例
+            }
+        }
+
+
         private void Form1_Resize(object? sender, EventArgs e)
         {
             // 防止視窗在初始化時觸發不必要的調整
@@ -259,20 +340,23 @@ namespace Lottery
         private void UpdateAllControls(float scaleRatio)
         {
             // 更新按鈕
-            UpdateButton(Start, StartButtonOriginSize, StartButtonOriginFontSize, scaleRatio, 0.5f, 0.9f);
-            UpdateButton(Reset, ResetButtonOriginSize, ResetButtonOriginFontSize, scaleRatio, 0.85f, 0.95f);
+            UpdateButton(Start, StartButtonOriginSize, StartButtonOriginFontSize, scaleRatio, 0.4f, 0.85f);
+            UpdateButton(Reset, ResetButtonOriginSize, ResetButtonOriginFontSize, scaleRatio, 0.9f, 0.95f);
 
             // 更新圖片
-            UpdatePictureBox(StartImage, StartImageOriginSize, StartImageOriginLocation, scaleRatio, 0.5f, 0.5f);
-            UpdatePictureBox(ExecuteImage, ExecuteImageOriginSize, ExecuteImageOriginLocation, scaleRatio, 0.5f, 0.5f);
-            UpdatePictureBox(ResultImage, ResultImageOriginSize, ResultImageOriginLocation, scaleRatio, 0.5f, 0.5f);
+            UpdatePictureBox(StartImage, StartImageOriginSize, StartImageOriginLocation, scaleRatio, 0.4f, 0.45f);
+            UpdatePictureBox(ExecuteImage, ExecuteImageOriginSize, ExecuteImageOriginLocation, scaleRatio, 0.4f, 0.45f);
+            UpdatePictureBox(ResultImage, ResultImageOriginSize, ResultImageOriginLocation, scaleRatio, 0.4f, 0.45f);
 
             // 更新文字框
-            UpdateTextBox(ResultText, ResultTextOriginFontSize, scaleRatio, 0.5f, 0.15f);
+            UpdateTextBox(ResultText, ResultTextOriginFontSize, scaleRatio, 0.4f, 0.1f);
+
+            // 更新列表框
+            UpdateListBox(listBox1, listBox1OriginLocation, listBox1OriginSize, listBox1OriginFontSize, scaleRatio, 0.85f, 0.4f);
         }
 
         private void UpdateButton(Button button, Size originalSize, float originalFontSize,
-    float scaleRatio, float horizontalPosition, float verticalPosition)
+            float scaleRatio, float horizontalPosition, float verticalPosition)
         {
             // 按照比例調整大小
             int newWidth = (int)(originalSize.Width * scaleRatio);
@@ -320,6 +404,25 @@ namespace Lottery
             int x = (int)(this.ClientSize.Width * horizontalPosition - textBox.Width * 0.5);
             int y = (int)(this.ClientSize.Height * verticalPosition - textBox.Height * 0.5);
             textBox.Location = new Point(x, y);
+        }
+
+        private void UpdateListBox(ListBox listBox, Point originalLocation, Size originalSize, float originalFontSize,
+            float scaleRatio, float horizontalPosition, float verticalPosition)
+        {
+            // 調整字體大小
+            float newFontSize = originalFontSize * scaleRatio;
+            if (Math.Abs(listBox.Font.Size - newFontSize) > 0.1f)
+            {
+                listBox.Font = new Font(listBox.Font.FontFamily, newFontSize);
+            }
+            // 按照比例調整大小
+            int newWidth = (int)(originalSize.Width * scaleRatio);
+            int newHeight = (int)(originalSize.Height * scaleRatio);
+            listBox.Size = new Size(newWidth, newHeight);
+            // 調整位置
+            int x = (int)(this.ClientSize.Width * horizontalPosition - listBox.Width * 0.5);
+            int y = (int)(this.ClientSize.Height * verticalPosition - listBox.Height * 0.5);
+            listBox.Location = new Point(x, y);
         }
     }
 }

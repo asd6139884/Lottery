@@ -34,6 +34,7 @@
             ResultImage = new PictureBox();
             ExecuteImage = new PictureBox();
             StartImage = new PictureBox();
+            listBox1 = new ListBox();
             ((System.ComponentModel.ISupportInitialize)ResultImage).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ExecuteImage).BeginInit();
             ((System.ComponentModel.ISupportInitialize)StartImage).BeginInit();
@@ -43,7 +44,7 @@
             // 
             Reset.Anchor = AnchorStyles.None;
             Reset.BackColor = Color.FromArgb(255, 128, 128);
-            Reset.Location = new Point(255, 324);
+            Reset.Location = new Point(354, 324);
             Reset.Name = "Reset";
             Reset.Size = new Size(75, 30);
             Reset.TabIndex = 0;
@@ -56,7 +57,7 @@
             // 
             Start.Anchor = AnchorStyles.None;
             Start.BackColor = Color.FromArgb(0, 192, 0);
-            Start.Location = new Point(130, 301);
+            Start.Location = new Point(117, 295);
             Start.Name = "Start";
             Start.Size = new Size(75, 30);
             Start.TabIndex = 1;
@@ -71,7 +72,7 @@
             ResultText.BackColor = Color.Gold;
             ResultText.BorderStyle = BorderStyle.None;
             ResultText.Font = new Font("Microsoft JhengHei UI", 20F);
-            ResultText.Location = new Point(60, 32);
+            ResultText.Location = new Point(47, 26);
             ResultText.Name = "ResultText";
             ResultText.ReadOnly = true;
             ResultText.Size = new Size(206, 34);
@@ -82,7 +83,7 @@
             // ResultImage
             // 
             ResultImage.Anchor = AnchorStyles.None;
-            ResultImage.Location = new Point(36, 82);
+            ResultImage.Location = new Point(23, 76);
             ResultImage.Name = "ResultImage";
             ResultImage.Size = new Size(261, 199);
             ResultImage.TabIndex = 3;
@@ -92,7 +93,7 @@
             // ExecuteImage
             // 
             ExecuteImage.Anchor = AnchorStyles.None;
-            ExecuteImage.Location = new Point(49, 32);
+            ExecuteImage.Location = new Point(36, 26);
             ExecuteImage.Name = "ExecuteImage";
             ExecuteImage.Size = new Size(236, 249);
             ExecuteImage.TabIndex = 4;
@@ -102,7 +103,7 @@
             // StartImage
             // 
             StartImage.Anchor = AnchorStyles.None;
-            StartImage.Location = new Point(36, 32);
+            StartImage.Location = new Point(23, 26);
             StartImage.Name = "StartImage";
             StartImage.Size = new Size(261, 249);
             StartImage.SizeMode = PictureBoxSizeMode.Zoom;
@@ -110,12 +111,23 @@
             StartImage.TabStop = false;
             StartImage.Resize += Form1_Resize;
             // 
+            // listBox1
+            // 
+            listBox1.ForeColor = SystemColors.WindowText;
+            listBox1.FormattingEnabled = true;
+            listBox1.ItemHeight = 15;
+            listBox1.Location = new Point(309, 26);
+            listBox1.Name = "listBox1";
+            listBox1.Size = new Size(120, 244);
+            listBox1.TabIndex = 6;
+            // 
             // Lottery
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gold;
-            ClientSize = new Size(334, 361);
+            ClientSize = new Size(441, 361);
+            Controls.Add(listBox1);
             Controls.Add(Reset);
             Controls.Add(Start);
             Controls.Add(StartImage);
@@ -139,5 +151,6 @@
         private PictureBox ResultImage;
         private PictureBox ExecuteImage;
         private PictureBox StartImage;
+        private ListBox listBox1;
     }
 }
